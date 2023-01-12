@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="SimpleCapture.cpp" />
+    <ClCompile Include="SampleWindow.cpp" />
+    <ClCompile Include="CaptureSnapshot.cpp" />
+    <ClCompile Include="WindowList.cpp" />
+    <ClCompile Include="MonitorList.cpp" />
+    <ClCompile Include="detector.cpp" />
+    <ClCompile Include="detector_utils.cpp" />
+    <ClCompile Include="PIDAimer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.h" />
+    <ClInclude Include="SimpleCapture.h" />
+    <ClInclude Include="SampleWindow.h" />
+    <ClInclude Include="CaptureSnapshot.h" />
+    <ClInclude Include="WindowList.h" />
+    <ClInclude Include="MonitorList.h" />
+    <ClInclude Include="detector.h" />
+    <ClInclude Include="detector_utils.h" />
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="PIDAimer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime.dll" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_shared.dll" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_cuda.dll" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_tensorrt.dll" />
+  </ItemGroup>
+</Project>

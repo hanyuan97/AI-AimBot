@@ -152,15 +152,16 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
             desc.Height = m_lastSize.Height;
             m_framePool.Recreate(m_device, m_pixelFormat, 2, m_lastSize);
         }
-
+        
         desc.Width = frame.ContentSize().Width;
         desc.Height = frame.ContentSize().Height;
         // desc.Width = w;
         // desc.Height = h;
+
         m_d3dDevice.get()->CreateTexture2D(&desc, nullptr, &stagingTexture);
         auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
         m_d3dContext->CopyResource(stagingTexture, surfaceTexture.get());
-
+        
         D3D11_MAPPED_SUBRESOURCE mappedTex;
         m_d3dContext->Map(stagingTexture, 0, D3D11_MAP_READ, 0, &mappedTex);
         m_d3dContext->Unmap(stagingTexture, 0);
@@ -169,17 +170,16 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
         frame_cpu = frame_cpu(cv::Rect(left, top, w, h));
         desc.Width = w;
         desc.Height = h;
-
+        
         winrt::com_ptr<ID3D11Texture2D> backBuffer;
-        // winrt::com_ptr<ID3D11Texture2D> backBuffer2;
         winrt::check_hresult(m_swapChain->GetBuffer(0, winrt::guid_of<ID3D11Texture2D>(), backBuffer.put_void()));
-        // auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
-        // copy surfaceTexture to backBuffer
         m_d3dContext->CopyResource(backBuffer.get(), stagingTexture);
+        
         result = detector.detect(frame_cpu);
         utils::findClosest(result, 0, target);
         if (target.isFind) aimer.aim(target.pos.x, target.pos.y);
         utils::visualizeDetection(frame_cpu, result, classNames, target);
+        
         if (frame_count >= 100)
         {
             auto end = std::chrono::high_resolution_clock::now();
@@ -210,33 +210,3 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
     }
 
 }
-/*
-void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& sender, winrt::IInspectable const&)
-{
-    auto swapChainResizedToFrame = false;
-
-    {
-        auto frame = sender.TryGetNextFrame();
-        swapChainResizedToFrame = TryResizeSwapChain(frame);
-
-        winrt::com_ptr<ID3D11Texture2D> backBuffer;
-        winrt::check_hresult(m_swapChain->GetBuffer(0, winrt::guid_of<ID3D11Texture2D>(), backBuffer.put_void()));
-        auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
-        // copy surfaceTexture to backBuffer
-        if (!swapChainResizedToFrame) {
-            m_d3dContext->CopyResource(backBuffer.get(), surfaceTexture.get());
-        }
-    }
-
-    DXGI_PRESENT_PARAMETERS presentParameters{};
-    m_swapChain->Present1(1, 0, &presentParameters);
-
-    swapChainResizedToFrame = swapChainResizedToFrame || TryUpdatePixelFormat();
-
-    if (swapChainResizedToFrame)
-    {
-        m_framePool.Recreate(m_device, m_pixelFormat, 2, m_lastSize);
-    }
-}
-
-*/

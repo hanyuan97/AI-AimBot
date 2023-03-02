@@ -1,8 +1,11 @@
 # AI-AimBot
 
-This Aimbot uses the Windows Graphics Capture API for fast window screenshots and YOLOv5 as the object detection model. If the target is detected within range, the crosshair is moved to the target using a PID algorithm.
+This is an aimbot application that utilizes the Windows Graphics Capture API for fast window screenshots and YOLOv5 as the object detection model. This aimbot can help gamers improve their accuracy and precision in shooting games by automatically moving the crosshair to the detected targets.
 
-## apex example
+To further enhance the speed and efficiency of object detection, this aimbot also supports TensorRT acceleration. This can significantly reduce the inference time and enable real-time object detection, even on low-end hardware.
+
+
+## Apex example
 
 ![image](https://github.com/hanyuan97/AI-AimBot/blob/master/example/apex.gif)
 

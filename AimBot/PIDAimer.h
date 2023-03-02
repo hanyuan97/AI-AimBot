@@ -1,5 +1,5 @@
 #pragma once
-
+#include <chrono>
 class PID {
 public:
 	PID();
@@ -14,8 +14,14 @@ class PIDAimer {
 public:
 	PIDAimer();
 	PIDAimer(float kp, float ki, float kd);
-	void aim(int dx, int dy);
+	void aim(int dx, int dy, int width, int height);
 private:
 	PID pidx, pidy;
 	int maxX, maxY;
+	std::chrono::system_clock::time_point y_last_sway_time;
+	std::chrono::system_clock::time_point x_last_sway_time;
+	float Y_SWAY_INTERVAL = 0.2f;
+	float X_SWAY_INTERVAL = 0.1f;
+	float Y_SWAY_RANGE = 0;
+	float X_SWAY_RANGE = 0;
 };

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AimBot", "AimBot\AimBot.vcxproj", "{045FFB0E-D0D4-404D-8C33-13C7074B3236}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AimBotSetup", "AimBotSetup\AimBotSetup.vdproj", "{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -21,6 +23,11 @@ Global
 		{045FFB0E-D0D4-404D-8C33-13C7074B3236}.Release|ARM64.Build.0 = Release|ARM64
 		{045FFB0E-D0D4-404D-8C33-13C7074B3236}.Release|x64.ActiveCfg = Release|x64
 		{045FFB0E-D0D4-404D-8C33-13C7074B3236}.Release|x64.Build.0 = Release|x64
+		{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}.Debug|ARM64.ActiveCfg = Debug
+		{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}.Debug|x64.ActiveCfg = Debug
+		{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}.Release|ARM64.ActiveCfg = Release
+		{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}.Release|x64.ActiveCfg = Release
+		{EE4BAF19-66E9-4CCF-92D3-BD9C8672933D}.Release|x64.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

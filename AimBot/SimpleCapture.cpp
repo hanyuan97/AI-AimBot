@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "SimpleCapture.h"
+#include "defines.h"
+#define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1:0)
+#define KEYDOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 
 namespace winrt
 {
@@ -38,7 +41,7 @@ SimpleCapture::SimpleCapture(winrt::IDirect3DDevice const& device, winrt::Graphi
     // it on the UI thread. 
     m_framePool = winrt::Direct3D11CaptureFramePool::Create(m_device, m_pixelFormat, 2, m_item.Size());
     m_session = m_framePool.CreateCaptureSession(m_item);
-    m_session.IsBorderRequired(false);
+    // m_session.IsBorderRequired(false);
     m_lastSize = m_item.Size();
     m_framePool.FrameArrived({ this, &SimpleCapture::OnFrameArrived });
     m_d3dDevice = d3dDevice;
@@ -60,9 +63,16 @@ SimpleCapture::SimpleCapture(winrt::IDirect3DDevice const& device, winrt::Graphi
         cv::ocl::Context::getDefault().device(0).name() :
         "No OpenCL device";
 
-    const std::string modelPath = "416_1117_apex_mix.onnx";
     const bool isGPU = true;
-    detector = YOLODetector(modelPath, isGPU, cv::Size(416, 416));
+    const std::string modelPath = "apex_0220_half.trt";
+    TRTdetector = YOLOv5TRTDetector(modelPath);
+    //const std::string modelPath = "apex_yolov8.trt";
+    //V8detector = new YOLOv8(modelPath);
+    //const std::string modelPath = "apex_yolov8_end2end_20_half.trt";
+    //V8detector = new YOLOv8end2end(modelPath);
+
+    //V8detector->make_pipe(true);
+
     classNames.push_back("per");
 }
 
@@ -133,13 +143,12 @@ bool SimpleCapture::TryUpdatePixelFormat()
 void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& sender, winrt::IInspectable const&)
 {
     auto swapChainResizedToFrame = false;
-
     {
         auto frame = sender.TryGetNextFrame();
-        auto left = frame.ContentSize().Width / 2 - 560 / 2;
-        auto top = frame.ContentSize().Height / 2 - 560 / 2;
-        auto x2 = frame.ContentSize().Width / 2 + 560 / 2;
-        auto y2 = frame.ContentSize().Height / 2 + 560 / 2;
+        auto left = frame.ContentSize().Width / 2 - DETECTION_RANGE / 2;
+        auto top = frame.ContentSize().Height / 2 - DETECTION_RANGE / 2;
+        auto x2 = frame.ContentSize().Width / 2 + DETECTION_RANGE / 2;
+        auto y2 = frame.ContentSize().Height / 2 + DETECTION_RANGE / 2;
         auto w = x2 - left + 1;
         auto h = y2 - top + 1;
         swapChainResizedToFrame = TryResizeSwapChain(frame);
@@ -160,6 +169,12 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
 
         m_d3dDevice.get()->CreateTexture2D(&desc, nullptr, &stagingTexture);
         auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
+        /*
+        D3D11_TEXTURE2D_DESC desc2;
+        surfaceTexture.get()->GetDesc(&desc2);
+        
+        DXGI_FORMAT format = desc2.Format;
+        */
         m_d3dContext->CopyResource(stagingTexture, surfaceTexture.get());
         
         D3D11_MAPPED_SUBRESOURCE mappedTex;
@@ -167,6 +182,7 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
         m_d3dContext->Unmap(stagingTexture, 0);
         //cv::cuda::GpuMat frame_gpu = cv::cuda::GpuMat(desc.Height, desc.Width, CV_8UC4, mappedTex.pData, mappedTex.RowPitch);
         cv::Mat frame_cpu = cv::Mat(desc.Height, desc.Width, CV_8UC4, mappedTex.pData, mappedTex.RowPitch);
+        cv::rectangle(frame_cpu, cv::Rect(left, top, w, h), cv::Scalar(0, 255, 0), 2);
         frame_cpu = frame_cpu(cv::Rect(left, top, w, h));
         desc.Width = w;
         desc.Height = h;
@@ -175,11 +191,24 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
         winrt::check_hresult(m_swapChain->GetBuffer(0, winrt::guid_of<ID3D11Texture2D>(), backBuffer.put_void()));
         m_d3dContext->CopyResource(backBuffer.get(), stagingTexture);
         
-        result = detector.detect(frame_cpu);
-        utils::findClosest(result, 0, target);
-        if (target.isFind) aimer.aim(target.pos.x, target.pos.y);
-        utils::visualizeDetection(frame_cpu, result, classNames, target);
         
+        auto detect_frame_start = std::chrono::high_resolution_clock::now();
+        result = TRTdetector.detect(frame_cpu);
+        /*V8detector->copy_from_Mat(frame_cpu);
+        V8detector->infer();
+        V8detector->postprocess(result);*/
+        auto detect_frame_end = std::chrono::high_resolution_clock::now();
+        
+        
+
+        detect_frame_time += std::chrono::duration_cast<std::chrono::milliseconds>(detect_frame_end - detect_frame_start).count();
+        
+        utils::findClosest(result, TARGET_CLASSID, target);
+        if (target.isFind && (KEY_DOWN(VK_LBUTTON) || KEY_DOWN(VK_RBUTTON))) aimer.aim(target.pos.x, target.pos.y, target.box.width, target.box.height);
+        auto draw_frame_start = std::chrono::high_resolution_clock::now();
+        utils::visualizeDetection(frame_cpu, result, classNames, target);
+        auto draw_frame_end = std::chrono::high_resolution_clock::now();
+        draw_frame_time += std::chrono::duration_cast<std::chrono::milliseconds>(draw_frame_end - draw_frame_start).count();
         if (frame_count >= 100)
         {
             auto end = std::chrono::high_resolution_clock::now();
@@ -188,12 +217,14 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
             fps_label << std::fixed << std::setprecision(2);
             fps_label << "FPS: " << fps;
             std::string fps_label_str = fps_label.str();
-            std::cout << fps_label_str.c_str() << std::endl;
-            frame_count = 0;
+            // std::cout << fps_label_str.c_str() << std::endl;
             start = std::chrono::high_resolution_clock::now();
             CString tmp = _T("test");
-            tmp.Format(_T("FPS: %.2f"), fps);
+            tmp.Format(_T("FPS: %.2f, avg. detect time: %.2f, avg. draw frame time: %.2f"), fps, detect_frame_time/100, draw_frame_time/100);
             SendMessage(statusBarHwnd, WM_SETTEXT, 0, (LPARAM)(LPCTSTR)tmp);
+            frame_count = 0;
+            detect_frame_time = 0;
+            draw_frame_time = 0;
         }
         
         stagingTexture->Release();

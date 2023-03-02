@@ -2,8 +2,8 @@
 #include "detector_utils.h"
 #define NOMINMAX
 #include <windows.h>
-#include <opencv2/cudaarithm.hpp>
-#include <opencv2/cudawarping.hpp>
+// #include <opencv2/cudaarithm.hpp>
+// #include <opencv2/cudawarping.hpp>
 
 
 
@@ -72,7 +72,7 @@ void utils::findClosest(std::vector<Detection>& detections, int classId, Target&
     for (const Detection& detection : detections) {
         if (detection.classId != classId) continue;
         float targetX = (float)detection.box.x + (float)detection.box.width * 0.5;
-        float targetY = (float)detection.box.y + (float)detection.box.height * 0.24;
+        float targetY = (float)detection.box.y + (float)detection.box.height * 0.35;
         float dis = distance(targetX, targetY);
         if (dis <= max_dis) {
             target.pos.x = targetX;
@@ -169,7 +169,7 @@ void utils::letterbox(const cv::Mat& image, cv::Mat& outImage,
     int right = int(std::round(dw + 0.1f));
     cv::copyMakeBorder(outImage, outImage, top, bottom, left, right, cv::BORDER_CONSTANT, color);
 }
-
+/*
 void utils::letterbox(const cv::cuda::GpuMat& image, cv::cuda::GpuMat& outImage,
     const cv::Size& newShape = cv::Size(640, 640),
     const cv::Scalar& color = cv::Scalar(114, 114, 114),
@@ -220,6 +220,7 @@ void utils::letterbox(const cv::cuda::GpuMat& image, cv::cuda::GpuMat& outImage,
     int right = int(std::round(dw + 0.1f));
     cv::cuda::copyMakeBorder(outImage, outImage, top, bottom, left, right, cv::BORDER_CONSTANT, color);
 }
+*/
 
 void utils::scaleCoords(const cv::Size& imageShape, cv::Rect& coords, const cv::Size& imageOriginalShape)
 {

@@ -7,10 +7,15 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
 #include "PIDAimer.h"
+#include "detector_utils.h"
 #include "detector.h"
+//#include "yolov8.hpp"
+//#include "yolov8end2end.hpp"
 #include <chrono>
 #include <atlstr.h>
 #include <format>
+
+
 
 class SimpleCapture
 {
@@ -75,13 +80,19 @@ private:
     std::atomic<bool> m_captureNextImage = false;
     winrt::com_ptr <ID3D11Device> m_d3dDevice{ nullptr };
     int frame_count = 0;
+    float load_frame_time = 0;
+    float detect_frame_time = 0;
+    float draw_frame_time = 0;
     D3D11_TEXTURE2D_DESC desc;
     ID3D11Texture2D* stagingTexture;
     ID3D11Texture2D* displayTexture;
     cv::ocl::Context m_oclCtx;
     cv::String m_oclPlatformName;
     cv::String m_oclDevName;
-    YOLODetector detector{ nullptr };
+    // YOLOv5ONNXDetector ONNXdetector{ nullptr };
+    YOLOv5TRTDetector TRTdetector{ nullptr };
+    // YOLOv8* V8detector{ nullptr };
+    // YOLOv8end2end* V8detector{ nullptr };
     std::vector<Detection> result;
     std::vector<std::string> classNames;
     PIDAimer aimer = PIDAimer();

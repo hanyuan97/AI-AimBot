@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.props" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.props')" />
   <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64">
@@ -46,6 +45,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -73,8 +73,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files\opencv\build\install\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.4.0.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\opencv\build\install\x64\vc16\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.4.0.6\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Program Files\opencv\build\install\include;$(IncludePath)</IncludePath>
@@ -90,10 +91,14 @@
       <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\opencv\build\install\include;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.5.3.1\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include;$(MSBuildThisFileDirectory)../../build/native/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Windowscodecs.lib;windowsapp.lib;dwmapi.lib;opencv_world455d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Windowscodecs.lib;windowsapp.lib;dwmapi.lib;nvinfer.lib;nvinfer_plugin.lib;cudart.lib;nvonnxparser.lib;nvparsers.lib;cudart.lib;opencv_world455d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\opencv\build\install\x64\vc16\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\lib\x64;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.5.3.1\lib;</AdditionalLibraryDirectories>
+      <StackReserveSize>32000000</StackReserveSize>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -122,12 +127,17 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Program Files\opencv\build\install\include;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.5.3.1\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include;C:\Program Files\opencv\build\install\include;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.5.3.1\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Windowscodecs.lib;windowsapp.lib;dwmapi.lib;opencv_world455.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Windowscodecs.lib;windowsapp.lib;dwmapi.lib;nvinfer.lib;nvinfer_plugin.lib;cudart.lib;cudart.lib;opencv_world455.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Version>1.0</Version>
+      <AdditionalLibraryDirectories>C:\Program Files\opencv\build\install\x64\vc16\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\lib\x64;C:\Program Files\NVIDIA GPU Computing Toolkit\TensorRT\v8.5.3.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <StackReserveSize>32000000</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -161,29 +171,40 @@
     <ClCompile Include="SampleWindow.cpp" />
     <ClCompile Include="SimpleCapture.cpp" />
     <ClCompile Include="WindowList.cpp" />
+    <ClCompile Include="yolov8.cpp" />
+    <ClCompile Include="yolov8end2end.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CaptureSnapshot.h" />
+    <ClInclude Include="common.hpp" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="detector.h" />
     <ClInclude Include="detector_utils.h" />
     <ClInclude Include="MonitorList.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PIDAimer.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SampleWindow.h" />
     <ClInclude Include="SimpleCapture.h" />
+    <ClInclude Include="unistd.h" />
     <ClInclude Include="WindowList.h" />
+    <ClInclude Include="yolov8.hpp" />
+    <ClInclude Include="yolov8end2end.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\x64\Release\opencv_world455.dll" />
+    <None Include="416_1117_apex_mix.onnx" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AimBot.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
     <Import Project="..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220201.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220201.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="..\packages\robmikh.common.0.0.15-beta\build\native\robmikh.common.targets" Condition="Exists('..\packages\robmikh.common.0.0.15-beta\build\native\robmikh.common.targets')" />
-    <Import Project="..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -193,7 +214,5 @@
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220201.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220201.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\packages\robmikh.common.0.0.15-beta\build\native\robmikh.common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\robmikh.common.0.0.15-beta\build\native\robmikh.common.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.12.1\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets'))" />
   </Target>
 </Project>

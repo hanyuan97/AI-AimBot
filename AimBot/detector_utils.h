@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _DETECTOR_UTILS
+#define _DETECTOR_UTILS
 #include <codecvt>
 #include <fstream>
 // #include "detector.h"
@@ -7,8 +9,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp> 
 #include <opencv2/cudaimgproc.hpp> 
-// 
-#endif
+ 
+ #endif
 #include "defines.h"
 
 struct Detection
@@ -44,16 +46,17 @@ namespace utils
         bool scaleUp,
         int stride);
 
-    void letterbox(const cv::cuda::GpuMat& image, cv::cuda::GpuMat& outImage,
+    /*void letterbox(const cv::cuda::GpuMat& image, cv::cuda::GpuMat& outImage,
         const cv::Size& newShape,
         const cv::Scalar& color,
         bool auto_,
         bool scaleFill,
         bool scaleUp,
-        int stride);
+        int stride);*/
 
     void scaleCoords(const cv::Size& imageShape, cv::Rect& box, const cv::Size& imageOriginalShape);
 
     template <typename T>
     T clip(const T& n, const T& lower, const T& upper);
 }
+#endif

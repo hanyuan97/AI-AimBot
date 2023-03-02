@@ -12,6 +12,8 @@
     <ClCompile Include="detector.cpp" />
     <ClCompile Include="detector_utils.cpp" />
     <ClCompile Include="PIDAimer.cpp" />
+    <ClCompile Include="yolov8.cpp" />
+    <ClCompile Include="yolov8end2end.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -21,16 +23,22 @@
     <ClInclude Include="CaptureSnapshot.h" />
     <ClInclude Include="WindowList.h" />
     <ClInclude Include="MonitorList.h" />
-    <ClInclude Include="detector.h" />
     <ClInclude Include="detector_utils.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="PIDAimer.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="common.hpp" />
+    <ClInclude Include="unistd.h" />
+    <ClInclude Include="yolov8.hpp" />
+    <ClInclude Include="detector.h" />
+    <ClInclude Include="yolov8end2end.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime.dll" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_shared.dll" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_cuda.dll" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\onnxruntime_providers_tensorrt.dll" />
+    <None Include="416_1117_apex_mix.onnx" />
+    <None Include="..\x64\Release\opencv_world455.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AimBot.rc" />
   </ItemGroup>
 </Project>

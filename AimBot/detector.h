@@ -3,45 +3,58 @@
 #define _CUDAARITHM
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp> 
-#include <opencv2/cudaimgproc.hpp> 
-#include <opencv2/cudaarithm.hpp>
+//#include <opencv2/cudaimgproc.hpp> 
+//#include <opencv2/cudaarithm.hpp>
 #endif
-#include <onnxruntime_cxx_api.h>
 #include <utility>
 #include "detector_utils.h"
 
+#include "NvInfer.h"
+#include "cuda_runtime_api.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <vector>
+#include <chrono>
+#include <cmath>
+#include <cassert>
 
-class YOLODetector
-{
+
+#include<opencv2/core/core.hpp>
+
+#define CHECK(status) \
+    do\
+    {\
+        auto ret = (status);\
+        if (ret != 0)\
+        {\
+            std::cerr << "Cuda failure: " << ret << std::endl;\
+            abort();\
+        }\
+    } while (0)
+
+using namespace nvinfer1;
+
+
+class YOLOv5TRTDetector {
 public:
-    explicit YOLODetector(std::nullptr_t) {};
-    YOLODetector(const std::string& modelPath,
-        const bool& isGPU,
-        const cv::Size& inputSize);
-
+    explicit YOLOv5TRTDetector(std::nullptr_t) {};
+    YOLOv5TRTDetector(const std::string& modelPath);
+    // ~YOLOv5TRTDetector();
+    void doInference(float* input, float* output, int batchSize);
     std::vector<Detection> detect(cv::Mat& image);
-    std::vector<Detection> detect(cv::cuda::GpuMat& image);
+    IExecutionContext* context = nullptr;
+    IRuntime* runtime = nullptr;
+    ICudaEngine* engine = nullptr;
 
 private:
-    Ort::Env env{ nullptr };
-    Ort::SessionOptions sessionOptions{ nullptr };
-    Ort::Session session{ nullptr };
+    // void preprocessingTexture(ID3D11Texture2D* texture);
+    void preprocessingMat(cv::Mat& image);
+    std::vector<Detection> postprocessing(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, const float& confThreshold, const float& iouThreshold);
+    cv::Size2f inputImageShape;
     float confThreshold = 0.3f;
     float iouThreshold = 0.4f;
-
-    void preprocessing(cv::Mat& image, float*& blob, std::vector<int64_t>& inputTensorShape);
-    void preprocessing(cv::cuda::GpuMat& image, float*& blob, std::vector<int64_t>& inputTensorShape);
-    std::vector<Detection> postprocessing(const cv::Size& resizedImageShape,
-        const cv::Size& originalImageShape,
-        std::vector<Ort::Value>& outputTensors,
-        const float& confThreshold, const float& iouThreshold);
-
-    static void getBestClassInfo(std::vector<float>::iterator it, const int& numClasses,
-        float& bestConf, int& bestClassId);
-
-    std::vector<const char*> inputNames;
-    std::vector<const char*> outputNames;
-    bool isDynamicInputShape{};
-    cv::Size2f inputImageShape;
-
+    float data[3 * DETECTION_SIZE * DETECTION_SIZE];
+    float prob[OUTPUT_SIZE];
 };

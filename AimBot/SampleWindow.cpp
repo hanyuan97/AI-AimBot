@@ -201,7 +201,7 @@ void SampleWindow::OnCaptureStarted(winrt::GraphicsCaptureItem const& item, Capt
         break;
     }
     SendMessageW(m_cursorCheckBox, BM_SETCHECK, BST_CHECKED, 0);
-    SendMessageW(m_borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_UNCHECKED, 0);
+    SendMessageW(m_borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_CHECKED, 0);
     EnableWindow(m_stopButton, true);
     EnableWindow(m_snapshotButton, true);
 }
@@ -304,7 +304,7 @@ void SampleWindow::CreateControls(HINSTANCE instance)
     HWND borderRequiredCheckBoxHwnd = controls.CreateControl(util::ControlType::CheckBox, L"Border required", borderEnableSytle);
 
     // The default state is false for border required checkbox
-    SendMessageW(borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_UNCHECKED, 0);
+    SendMessageW(borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_CHECKED, 0);
 
     m_windowComboBox = windowComboBox;
     m_monitorComboBox = monitorComboBox;
@@ -334,7 +334,7 @@ void SampleWindow::StopCapture()
     SendMessageW(m_windowComboBox, CB_SETCURSEL, -1, 0);
     SendMessageW(m_monitorComboBox, CB_SETCURSEL, -1, 0);
     SendMessageW(m_cursorCheckBox, BM_SETCHECK, BST_CHECKED, 0);
-    SendMessageW(m_borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_UNCHECKED, 0);
+    SendMessageW(m_borderRequiredCheckBoxHwnd, BM_SETCHECK, BST_CHECKED, 0);
     EnableWindow(m_stopButton, false);
     EnableWindow(m_snapshotButton, false);
 }

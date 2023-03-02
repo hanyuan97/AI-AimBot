@@ -262,3 +262,8 @@ __pycache__/
 
 Win32CaptureSample/output.png
 /Win32CaptureSample/output.jxr
+
+*.trt
+*.onnx
+*.pt
+*.dll
